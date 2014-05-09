@@ -32,7 +32,6 @@ griddle正是基于Counting Bloom Filter实现的。此外，它还包含以下�
 	<groupId>com.ximalaya</groupId>
 	<artifactId>griddle</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<scope>test</scope>
 </dependency>
 ```
 ###增加griddle-config.properties配置文件
