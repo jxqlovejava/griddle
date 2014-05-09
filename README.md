@@ -13,7 +13,7 @@ griddle是一个简单的轻量级通用组件。它包含以下两个项目：
 
 大数据算法中有一个叫Bloom Filter（中文名叫布隆过滤器）的算法，它能通过牺牲一定准确性来换取大量内存空间节省，并且由于操作是在内存中，非常适用于某些业务场景，比如爬虫的URL去重等。Bloom Filter的一个扩展算法是Counting Bloom Filter，它相比Bloom Filter支持删除，而且可以统计某个Key已重复插入的次数。更多关于Bloom Filter和Count Bloom Filter算法原理和实现细节，可以参考网络上的其他资料和查看bloomfilter-ext项目源码。
 
-griddle正是基于Counting Bloom Filter实现的。此外，它还包含以下扩展：
+griddle正是基于Counting Bloom Filter实现的。此外，它还包含以下扩展特性：
 
 * 程序运行过程会定时Dump内存中的Counting Bloom Filter数据结构到磁盘，这样在应用意外崩溃后再次启动时，会从Dump文件恢复Counting Bloom Filter为崩溃前状态
 * 会定时回收满足回收条件的Griddle对象（它内部封装了一个Counting Bloom Filter和Dump文件相关信息）
