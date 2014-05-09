@@ -1,7 +1,6 @@
-
 ##griddle包含项目
 
-griddle是一个简单的轻量级组件。它包含以下两个项目：
+griddle是一个简单的轻量级通用组件。它包含以下两个项目：
 
 * bloomfilter-ext项目：提取自Hadoop源码，自己只扩展了一个AdjustedCountingBloomFilter类，修改其Dump方式为使用NIO的ByteBuffer
 * griddle项目：依赖于bloomfilter-ext项目，包含该通用组件的具体实现
