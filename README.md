@@ -142,7 +142,7 @@ GriddleManager.increaseInsertCountByOne("toupiao1", "1001"));
 
 * public static void updateMaxRepeatInsertCount(String griddleName, int newMaxRepeatInsertCount)：运行期间更新某个Griddle的最大可重复插入次数
 
-* public static List<String> getActiveGriddleNameList()：获取活跃Griddle的名称列表，活跃指该Griddle还没有被真正回收
+* public static List&lt;String&gt; getActiveGriddleNameList()：获取活跃Griddle的名称列表，活跃指该Griddle还没有被真正回收
 
 在你的代码中你只需要组合使用这几个接口就好了。比如：
 ```java
