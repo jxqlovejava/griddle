@@ -2,8 +2,8 @@
 
 griddle是一个简单的轻量级通用组件。它包含以下两个项目：
 
-* bloomfilter-ext项目：提取自Hadoop源码，自己只扩展了一个AdjustedCountingBloomFilter类，修改其Dump方式为使用NIO的ByteBuffer
-* griddle项目：依赖于bloomfilter-ext项目，包含该通用组件的具体实现
+* bloomfilter-ext：提取自Hadoop源码，自己只扩展了一个AdjustedCountingBloomFilter类，修改其Dump方式为使用NIO的ByteBuffer
+* griddle：依赖bloomfilter-ext项目，包含该通用组件的具体实现
 
 ##适合场景和特性
 比如现在很多网站会发起一些投票活动，但会限制每个用户投票总数，如果网站用户数量级比较大并且投票活动比较傲频繁时，我们该如何存储用户剩余可投票次数呢？
