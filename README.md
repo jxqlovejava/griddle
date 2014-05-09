@@ -32,9 +32,9 @@ griddle正是基于Counting Bloom Filter实现的。此外，它还包含以下�
 	<version>0.0.1-SNAPSHOT</version>
 </dependency>
 <dependency>
-	<groupId>junit</groupId>
-	<artifactId>junit</artifactId>
-	<version>4.8.2</version>
+	<groupId>com.ximalaya</groupId>
+	<artifactId>griddle<</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
 	<scope>test</scope>
 </dependency>
 ```
