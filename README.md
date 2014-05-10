@@ -1,4 +1,4 @@
-##注意：发现Hadoop的CountingBloomFilter实现是非线程安全的，TODO：替换成线程安全的CountingBloomFilter实现
+<strong>注意：发现Hadoop的CountingBloomFilter实现是非线程安全的，TODO：替换成线程安全的CountingBloomFilter实现</strong>
 
 ##griddle包含项目
 
