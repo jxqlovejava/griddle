@@ -158,6 +158,9 @@ if(GriddleManager.increaseInsertCountByOne(uniqueGriddleName, "1001")) {
 else {
    // 用户1001已达到投票次数上限，不能进行投票
 }
+
+// 当投票活动结束时标记Griddle可以被回收
+GriddleManager.markToRecycleGriddle(uniqueGriddleName);
 ```
 
 整个组件就是如此简单，欢迎大家提意见或者发表看法，我的Email是：jxqlovezlj@gmail.com
