@@ -1,6 +1,6 @@
 ##特别注意：
 * 发现Hadoop的CountingBloomFilter实现是非线程安全的，TODO：替换成线程安全的CountingBloomFilter实现
-* CountingBloomFilter最大可重复插入次数必须小于等于15
+* CountingBloomFilter最大可重复插入次数必须小于等于15（即maxRepeatInsertCount参数）
 
 ##griddle包含项目
 
