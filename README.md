@@ -39,7 +39,7 @@ griddle正是基于Counting Bloom Filter实现的。此外，它还包含以下�
 	<version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
-###增加griddle-config.properties配置文件
+###添加griddle-config.properties配置文件
 ```properties
 griddle.config.dumpFileDir=/usr/local/dump
 griddle.config.dumpFileIntervalMillis=5000
