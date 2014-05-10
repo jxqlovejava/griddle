@@ -10,17 +10,6 @@
 	<name>bloomfilter-ext</name>
 	<url>http://maven.apache.org</url>
 
-	<developers>
-		<developer>
-			<id>will</id>
-			<name>will jiang</name>
-			<email>jxqlovejava@163.com</email>
-			<organization>ximalaya</organization>
-			<organizationUrl>http://ximalaya.com</organizationUrl>
-			<timezone>+8</timezone>
-		</developer>
-	</developers>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
