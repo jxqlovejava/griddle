@@ -1,3 +1,5 @@
+##注意：发现Hadoop的CountingBloomFilter实现是非线程安全的，TODO：替换成线程安全的CountingBloomFilter实现
+
 ##griddle包含项目
 
 griddle是一个简单的轻量级通用组件。它包含以下两个项目：
