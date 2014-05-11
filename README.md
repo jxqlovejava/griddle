@@ -16,7 +16,7 @@ griddle是一个简单的轻量级通用组件。它包含以下两个项目：
 * 直接存储在MySQL这种关系型数据库中？不靠谱，查询和更新太耗时
 * 存放在Redis这种KV数据库中？大部分情况可以，但比较耗内存，并且Redis基于TCP/IP网络协议，有网络连接开销
 
-大数据算法中有一个叫Bloom Filter（中文名叫布隆过滤器）的算法，它能通过牺牲一定准确性来换取大量内存空间节省，并且由于操作是在内存中，非常适用于某些业务场景，比如爬虫的URL去重等。Bloom Filter的一个扩展算法是Counting Bloom Filter，它相比Bloom Filter支持删除，而且可以统计某个Key已重复插入的次数。更多关于Bloom Filter和Count Bloom Filter算法原理和实现细节，可以参考网络上的其他资料和查看bloomfilter-ext项目源码。
+大数据算法中有一个叫Bloom Filter（中文名叫布隆过滤器）的算法，它能通过牺牲一定准确性来换取大量内存空间节省，并且由于操作是在内存中，性能也非常不错。非常适用于某些业务场景，比如爬虫的URL去重等。Bloom Filter的一个扩展算法是Counting Bloom Filter，它相比Bloom Filter支持删除，而且可以统计某个Key已重复插入的次数。更多关于Bloom Filter和Count Bloom Filter算法原理和实现细节，可以参考网络上的其他资料和查看bloomfilter-ext项目源码。
 
 griddle正是基于Counting Bloom Filter实现的。此外，它还包含以下扩展特性：
 
