@@ -1,4 +1,4 @@
-##特别注意：
+##注意：
 * CountingBloomFilter最大可重复插入次数必须小于等于15（即maxRepeatInsertCount参数）
 
 ##griddle包含项目
@@ -29,15 +29,15 @@ griddle正是基于Counting Bloom Filter实现的。此外，它还包含以下�
 <dependency>
     <groupId>com.ximalaya</groupId>
 	<artifactId>bloomfilter-ext</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 </dependency>
 <dependency>
 	<groupId>com.ximalaya</groupId>
 	<artifactId>griddle</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.2.0-SNAPSHOT</version>
 </dependency>
 ```
-###添加griddle-config.properties配置文件
+###添加griddle-config.properties配置文件（注意属性名不要修改）
 ```properties
 griddle.config.dumpFileDir=/usr/local/dump
 griddle.config.dumpFileIntervalMillis=5000
@@ -80,7 +80,6 @@ griddle.config.hashNum=20
 </table>
 
 ###配置application-context.xml
-只需要在application-context.xml中配置一个GriddleManager的Bean即可：
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -100,6 +99,9 @@ griddle.config.hashNum=20
 		"
 	default-lazy-init="false">
 	
+	<context:annotation-config />
+	<context:component-scan base-package="com.ximalaya.griddle" />
+	
 	<bean id="propertyConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
@@ -109,21 +111,11 @@ griddle.config.hashNum=20
 		</property>
 	</bean>
 	
-	<!-- Griddle管理器Bean -->
-	<bean id="griddleManager" class="com.ximalaya.griddle.GriddleManager">
-		<constructor-arg index="0" value="${griddle.config.dumpFileDir}" />
-		<constructor-arg index="1" value="${griddle.config.dumpFileIntervalMillis}" />
-		<constructor-arg index="2" value="${griddle.config.recycleGriddleCheckMillis}" />
-		<constructor-arg index="3" value="${griddle.config.vectorSize}" />
-		<constructor-arg index="4" value="${griddle.config.hashType}" />
-		<constructor-arg index="5" value="${griddle.config.hashNum}" />
-	</bean>
-	
 </beans>
 ```
 
 ###使用API接口
-griddle提供了五个接口，分别如下（前三个最常用）：
+griddle提供了五个接口，分别如下：
 
 * public static void addGriddle(String griddleName, int maxRepeatInsertCount)：添加一个Griddle对象到GriddleManager中，交由griddle框架管理：第一个参数为griddle的唯一标识名(<strong>注意不能包含英文句点</strong>)，必须在应用内唯一；第二个参数设定可重复插入Counting Bloom Filter次数。如果是投票数限制场景，那就是某个活动每个用户投票数上限值。比如：
 
@@ -161,4 +153,4 @@ else {
 GriddleManager.markToRecycleGriddle(uniqueGriddleName);
 ```
 
-整个组件就是如此简单，欢迎大家提意见或者发表看法，我的Email是：jxqlovezlj@gmail.com
+完！欢迎大家提意见或者发表看法，我的Email是：jxqlovezlj@gmail.com
