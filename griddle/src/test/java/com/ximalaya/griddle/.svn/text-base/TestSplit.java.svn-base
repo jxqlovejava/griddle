@@ -1,0 +1,15 @@
+package com.ximalaya.griddle;
+
+import org.junit.Test;
+import org.springframework.util.Assert;
+
+public class TestSplit {
+	
+	@Test
+	public void testSplit() {
+		String str = "2.5.dat";
+		String[] tokens = str.split("\\.");
+		Assert.isTrue(tokens.length > 0);
+	}
+
+}

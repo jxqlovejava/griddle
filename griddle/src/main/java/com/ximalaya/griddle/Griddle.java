@@ -253,7 +253,13 @@ public class Griddle {
 		LOG.debug("dump cbf to file [{}]", dumpFilePath);
 		
 		MemoryMappedFile memoryMappedFile = new MemoryMappedFile(tmpDumpFilePath, this.fileSizeInByte);
-		memoryMappedFile.map();
+		try {
+			memoryMappedFile.map();
+		}
+		catch(Exception e) {
+			return;
+		}
+		
 		AdjustedCountingBloomFilter cbf = this.cbfSection.getCBF();
 		try {
 			cbf.write(memoryMappedFile.getMappedByteBuffer());

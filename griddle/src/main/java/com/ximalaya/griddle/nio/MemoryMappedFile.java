@@ -13,6 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ximalaya.griddle.exception.MapOrUnmapFileFailedException;
+
 /**
  * 内存映射文件抽象类
  * @author will
@@ -22,6 +24,7 @@ public class MemoryMappedFile {
 	
 	private String filePath;      // 文件路径
 	private File file;            // 文件对象
+	private RandomAccessFile raf; // 随机存取文件对象
 	private FileChannel fileChannel;
 	private int fileSize;
 	private MappedByteBuffer mappedByteBuffer;
@@ -52,17 +55,28 @@ public class MemoryMappedFile {
 	public void map() {
 		LOG.debug("map file: {}", filePath);
 		
-		try {
-			RandomAccessFile raf = new RandomAccessFile(file, "rw");
-			this.fileChannel = raf.getChannel();
-		} catch (Exception e) {
-			LOG.error("build file channel for file [{}] failed: {}", filePath, e.getMessage());
+		if(!this.file.exists()) {
+			String errorMsg = String.format("map file failed, because file: %s doesn't exist", filePath);
+			LOG.error(errorMsg);
+			throw new MapOrUnmapFileFailedException(errorMsg);
 		}
+ 		
+		try {
+			this.raf = new RandomAccessFile(this.file, "rw");
+			this.fileChannel = this.raf.getChannel();
+		} catch (Exception e) {
+			String errorMsg = String.format("build file channel for file: [%s] failed", filePath);
+			LOG.error(errorMsg, e);
+			throw new MapOrUnmapFileFailedException(errorMsg, e);
+		}
+		
 		try {
 			this.mappedByteBuffer = this.fileChannel
-										 .map(FileChannel.MapMode.READ_WRITE, 0, this.fileSize);
+										.map(FileChannel.MapMode.READ_WRITE, 0, this.fileSize);
 		} catch (IOException e) {
-			LOG.error("map file [{}]'s FileChannel to MappedByteBuffer failed: {}", filePath, e.getMessage());
+			String errorMsg = String.format("map file: [%s]'s FileChannel to MappedByteBuffer failed", filePath);
+			LOG.error(errorMsg, e);
+			throw new MapOrUnmapFileFailedException(errorMsg, e);
 		}
 	}
 	
@@ -72,6 +86,12 @@ public class MemoryMappedFile {
 	 */
 	public void unmap() {
 		LOG.debug("unmap file: {}", filePath);
+		
+		if(!this.file.exists()) {
+			String errorMsg = String.format("map file failed, because file: %s doesn't exist", filePath);
+			LOG.error(errorMsg);
+			throw new MapOrUnmapFileFailedException(errorMsg);
+		}
 		
 		try {
 			if (this.mappedByteBuffer == null) {
@@ -106,6 +126,12 @@ public class MemoryMappedFile {
 				this.fileChannel.close();
 			} catch (IOException e) {
 				LOG.error("close file channel failed for file [{}]: {}", filePath, e.getMessage());
+			}
+			
+			try {
+				this.raf.close();
+			} catch(IOException e) {
+				LOG.error("close raf(RandomAccessFile) failed");
 			}
 		}
 	}

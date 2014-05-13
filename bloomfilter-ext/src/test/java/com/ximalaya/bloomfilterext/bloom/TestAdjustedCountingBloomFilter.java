@@ -22,39 +22,46 @@ import com.ximalaya.bloomfilterext.hash.Hash;
  * nbHash:     1 int = 4 byte
  * hashType:   1 byte
  * vectorSize: 1 int = 4 byte
- * buckets:    (((vectorSize - 1) >>> 4) + 1)*8 byte
+ * buckets:    vectorSize/4 byte
  * -------------------------------
- * total:      约为8 * ((vectorSize - 1) >>> 4) + 13 byte
+ * total:      约为(vectorSize/2 + 13) byte
  * 所以：
- * 如果vectorSize为1<<24（1677.7216万），内存消耗大概为4MB
- * 如果vectorSize为1<<27（1.34亿），内存消耗大概为32MB
+ * 如果vectorSize为1<<24（1677.7216万），内存消耗大概为8MB
+ * 如果vectorSize为1<<27（1.34亿），内存消耗大概为64MB
  * 
  * @author will
  */
 public class TestAdjustedCountingBloomFilter {
 	
-	private static final int DEFAULT_VECTOR_SIZE = 1 << 27;
+	private static final int DEFAULT_VECTOR_SIZE = 1 << 10;
 	private static final int FILE_BYTE_SIZE = (((DEFAULT_VECTOR_SIZE - 1) >>> 4) + 1) * 8 + 13;
 	private static final int DEFAULT_HASH_NUM = 20;
 	private static final int DEFAULT_HASH_TYPE = Hash.MURMUR_HASH;
 	
-	private AdjustedCountingBloomFilter acbf 
-		= new AdjustedCountingBloomFilter(DEFAULT_VECTOR_SIZE, DEFAULT_HASH_NUM, DEFAULT_HASH_TYPE);
+	private static final String DUMP_FILE_PATH = "/usr/local/dump/dump.dat";
 	
 	@Test
-	public void cbfMemoryUsageTest() throws IOException {
+	public void commonTest() throws IOException {
+		AdjustedCountingBloomFilter acbf  = 
+				new AdjustedCountingBloomFilter(DEFAULT_VECTOR_SIZE, DEFAULT_HASH_NUM, DEFAULT_HASH_TYPE);
+		acbf.add(new Key("jxq".getBytes()));
+		acbf.add(new Key("jxq".getBytes()));
+		acbf.add(new Key("jxq".getBytes()));
 		
+		Assert.assertTrue(acbf.approximateCount(new Key("jxq".getBytes())) == 3);
 	}
 	
 	@Test
 	public void persistCBFToDisk() throws IOException {
-		for(int i = 0; i < 15; i++) {
-			acbf.add(new Key("jxq".getBytes()));
-		}
+		AdjustedCountingBloomFilter acbf  = 
+				new AdjustedCountingBloomFilter(DEFAULT_VECTOR_SIZE, DEFAULT_HASH_NUM, DEFAULT_HASH_TYPE);
+		acbf.add(new Key("hello".getBytes()));
+		acbf.add(new Key("world".getBytes()));
+		acbf.add(new Key("jxq".getBytes()));
+		acbf.add(new Key("jxq".getBytes()));
+		acbf.add(new Key("jxq".getBytes()));
 		
-		Assert.assertTrue(acbf.approximateCount(new Key("jxq".getBytes())) == 15);
-		
-		/*File dumpFile = new File("e:/test/acbf.dat");
+		File dumpFile = new File(DUMP_FILE_PATH);
 		if(dumpFile.exists()) {
 			dumpFile.delete();
 		}
@@ -64,12 +71,15 @@ public class TestAdjustedCountingBloomFilter {
 		MappedByteBuffer mbb = fileChannel.map(MapMode.READ_WRITE, 0, FILE_BYTE_SIZE);
 		
 		acbf.write(mbb);
-		unmap(mbb);*/
+		unmap(mbb);
+		raf.close();
 	}
 	
 	@Test
 	public void readCBFFromDisk() throws IOException {
-		/*File dumpFile = new File("e:/test/acbf.dat");
+		File dumpFile = new File(DUMP_FILE_PATH);
+		AdjustedCountingBloomFilter acbf  = 
+				new AdjustedCountingBloomFilter(DEFAULT_VECTOR_SIZE, DEFAULT_HASH_NUM, DEFAULT_HASH_TYPE);
 		if(dumpFile.exists()) {
 			RandomAccessFile raf = new RandomAccessFile(dumpFile, "rw");
 			FileChannel fileChannel = raf.getChannel();
@@ -77,6 +87,7 @@ public class TestAdjustedCountingBloomFilter {
 			
 			acbf.readFields(mbb);
 			unmap(mbb);
+			raf.close();
 			
 			// 测试
 			Assert.assertTrue(acbf.membershipTest(new Key("hello".getBytes())));
@@ -84,8 +95,9 @@ public class TestAdjustedCountingBloomFilter {
 			Assert.assertTrue(acbf.membershipTest(new Key("jxq".getBytes())));
 			Assert.assertFalse(acbf.membershipTest(new Key("will".getBytes())));
 			Assert.assertEquals(3, acbf.approximateCount(new Key("jxq".getBytes())));
-		}*/
+		}
 	}
+	
 	
 	/**
 	 * 在MappedByteBuffer释放后再对它进行读操作的话就会引发jvm crash，在并发情况下很容易发生

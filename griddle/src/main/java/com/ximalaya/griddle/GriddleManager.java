@@ -1,6 +1,5 @@
 package com.ximalaya.griddle;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,15 +11,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 import org.springframework.scheduling.concurrent.ScheduledExecutorTask;
 
-import com.ximalaya.bloomfilterext.hash.Hash;
 import com.ximalaya.griddle.util.FileUtil;
 
 /**
@@ -28,10 +29,11 @@ import com.ximalaya.griddle.util.FileUtil;
  * @author will
  *
  */
+@Configuration
 public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	
 	/*
-	 * 静态全局配置
+	 * 全局配置，在griddle-config.properties中配置
 	 */
 	private static String dumpFileDir;               // Dump文件目录
 	private static long dumpFileIntervalMillis;      // 定时Dump时间间隔，单位为毫秒
@@ -39,9 +41,6 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	private static int vectorSize;                   // 预计每种过滤器插入最大次数
 	private static int hashType;                     // 哈希函数类型，1-MurMur Hash，0-Jekins Hash
 	private static int hashNum;                      // 重复进行哈希运算次数
-
-	private static final int DEFAULT_HASH_TYPE = Hash.MURMUR_HASH;   // 默认哈希函数类型
-	private static final int DEFAULT_HASH_NUM = 20;   // 默认重复进行哈希次数
 	
 	private static Map<String, Griddle> griddleMap = new ConcurrentHashMap<String, Griddle> ();   // Griddle名称到Griddle对象的映射
 	
@@ -51,47 +50,46 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	private static final Object accessDumpFileMutex = new Object();   // 访问Dump文件的互斥锁
 	
 	private static final Logger LOG = LoggerFactory.getLogger(GriddleManager.class);
-
+	
 	
 	/*
 	 * ------------------------------------------------------
-	 * 构造函数
+	 * 全局配置属性Setters
 	 * ------------------------------------------------------
 	 */
-	
-	public GriddleManager(String dumpFileDir, long dumpFileIntervalMillis, long recycleGriddleCheckMillis, 
-			int vectorSize) {
-		this(dumpFileDir, dumpFileIntervalMillis, recycleGriddleCheckMillis, vectorSize, DEFAULT_HASH_TYPE, 
-				DEFAULT_HASH_NUM);
+	@Autowired
+	public void setDumpFileDir(
+			@Value("${griddle.config.dumpFileDir}") String dumpFileDir) {
+		GriddleManager.dumpFileDir = dumpFileDir;
 	}
 	
-	public GriddleManager(String dumpFileDir, long dumpFileIntervalMillis, long recycleGriddleCheckMillis,
-			int vectorSize, int hashType, int hashNum) {
-		if(StringUtils.isEmpty(dumpFileDir)
-		   || dumpFileIntervalMillis <= 0
-		   || recycleGriddleCheckMillis <= 0
-		   || vectorSize <= 0
-		   || hashType < 0
-		   || hashNum <= 0) {
-			throw new IllegalArgumentException("dumpFileDir should not empty, dumpFileIntervalMillis " 
-					+ "& recycleGriddleCheckMillis & vectorSize & hashNum should > 0, hashType should >= 0, " 
-					+ "and griddleConfigList should not empty");
-		}
-		
-		File dumpDirectory = new File(dumpFileDir);
-		if(!dumpDirectory.exists()) {   // 如果目录不存在则创建
-			dumpDirectory.mkdirs();
-		}
-		if(!dumpDirectory.canRead()
-		   || !dumpDirectory.canWrite()) {
-			throw new IllegalArgumentException("dumpFileDir should be readable/writable");
-		}
-		
-		GriddleManager.dumpFileDir = dumpFileDir;
+	@Autowired
+	public void setDumpFileIntervalMillis(
+			@Value("${griddle.config.dumpFileIntervalMillis}") long dumpFileIntervalMillis) {
 		GriddleManager.dumpFileIntervalMillis = dumpFileIntervalMillis;
+	}
+	
+	@Autowired
+	public void setRecycleGriddleCheckMillis(
+			@Value("${griddle.config.recycleGriddleCheckMillis}") long recycleGriddleCheckMillis) {
 		GriddleManager.recycleGriddleCheckMillis = recycleGriddleCheckMillis;
+	}
+	
+	@Autowired
+	public void setVectorSize(
+			@Value("${griddle.config.vectorSize}") int vectorSize) {
 		GriddleManager.vectorSize = vectorSize;
+	}
+	
+	@Autowired
+	public void setHashType(
+			@Value("${griddle.config.hashType:1}") int hashType) {
 		GriddleManager.hashType = hashType;
+	}
+	
+	@Autowired
+	public void setHashNum(
+			@Value("${griddle.config.hashNum:20}") int hashNum) {
 		GriddleManager.hashNum = hashNum;
 	}
 	
@@ -155,6 +153,13 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 			
 			// 最后Dump一次CBF到硬盘文件
 			LOG.info("on stop, dump cbfs to disk files for the last time");
+			try {
+				Thread.sleep(10);
+			}
+			catch(InterruptedException _) {
+				// swallow its
+			}
+			
 			dumpCBFsToDisk();
 		}
 	}
@@ -193,51 +198,23 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	public String getDumpFileDir() {
 		return dumpFileDir;
 	}
-
-	public void setDumpFileDir(String dumpFileDir) {
-		GriddleManager.dumpFileDir = dumpFileDir;
-	}
-
+	
 	public long getDumpFileIntervalMillis() {
 		return dumpFileIntervalMillis;
-	}
-
-	public void setDumpFileIntervalMillis(long dumpFileIntervalMillis) {
-		GriddleManager.dumpFileIntervalMillis = dumpFileIntervalMillis;
-	}
-	
-	public static long getRecycleGriddleCheckMillis() {
-		return recycleGriddleCheckMillis;
-	}
-
-	public static void setRecycleGriddleCheckMillis(long recycleGriddleCheckMillis) {
-		GriddleManager.recycleGriddleCheckMillis = recycleGriddleCheckMillis;
 	}
 
 	public int getVectorSize() {
 		return vectorSize;
 	}
 
-	public void setVectorSize(int vectorSize) {
-		GriddleManager.vectorSize = vectorSize;
-	}
-
 	public int getHashType() {
 		return hashType;
-	}
-
-	public void setHashType(int hashType) {
-		GriddleManager.hashType = hashType;
 	}
 
 	public int getHashNum() {
 		return hashNum;
 	}
 
-	public void setHashNum(int hashNum) {
-		GriddleManager.hashNum = hashNum;
-	}
-	
 	
 	/*
 	 * ------------------------------------------------------
@@ -360,7 +337,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	private static void ensureGriddleAlreadyExist(String griddleName) {
 		if(!griddleMap.containsKey(griddleName)) {
 			throw new IllegalArgumentException("griddleMap doesn't contains griddle: " + griddleName 
-					+ ", you may need to turn to addGriddle to add Griddle to griddleMap");
+					+ ", you may need use addGriddle to add Griddle to griddleMap");
 		}
 	}
 	

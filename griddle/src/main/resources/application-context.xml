@@ -16,6 +16,9 @@
 		"
 	default-lazy-init="false">
 	
+	<context:annotation-config />
+	<context:component-scan base-package="com.ximalaya.griddle" />
+	
 	<bean id="propertyConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
@@ -23,16 +26,6 @@
 				<value>classpath:griddle-config.properties</value>
 			</list>
 		</property>
-	</bean>
-	
-	<!-- Griddle管理器Bean -->
-	<bean id="griddleManager" class="com.ximalaya.griddle.GriddleManager">
-		<constructor-arg index="0" value="${griddle.config.dumpFileDir}" />
-		<constructor-arg index="1" value="${griddle.config.dumpFileIntervalMillis}" />
-		<constructor-arg index="2" value="${griddle.config.recycleGriddleCheckMillis}" />
-		<constructor-arg index="3" value="${griddle.config.vectorSize}" />
-		<constructor-arg index="4" value="${griddle.config.hashType}" />
-		<constructor-arg index="5" value="${griddle.config.hashNum}" />
 	</bean>
 	
 </beans>

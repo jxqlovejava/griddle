@@ -4,17 +4,17 @@
 
 	<groupId>com.ximalaya</groupId>
 	<artifactId>griddle</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.2.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>griddle</name>
 	<url>http://maven.apache.org</url>
-	
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.version>3.1.1.RELEASE</spring.version>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -22,23 +22,6 @@
 			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- bloomfilter-ext -->
-		<dependency>
-			<groupId>com.ximalaya</groupId>
-			<artifactId>bloomfilter-ext</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib</artifactId>
-			<version>3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm-all</artifactId>
-			<version>4.0</version>
-		</dependency>
-
 		<!-- Spring framework -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -65,20 +48,23 @@
 			<artifactId>spring-test</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
-            
-		
-		<!-- slf4j -->
+		<!-- bloomfilter-ext -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.7</version>
+			<groupId>com.ximalaya</groupId>
+			<artifactId>bloomfilter-ext</artifactId>
+			<version>0.1.5-SNAPSHOT</version>
 		</dependency>
-        <dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.7</version>
+		<!-- CGLib -->
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>3.0</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm-all</artifactId>
+			<version>4.0</version>
+		</dependency>
 		<!-- Apache Commons -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -86,20 +72,20 @@
 			<version>3.3.2</version>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<pluginManagement>
-				<plugins>
-					<plugin>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<version>2.3.2</version>
-						<configuration>
-							<encoding>utf-8</encoding>
-							<source>1.6</source>
-							<target>1.6</target>
-						</configuration>
-					</plugin>
-				</plugins>
+			<plugins>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.3.2</version>
+					<configuration>
+						<encoding>utf-8</encoding>
+						<source>1.6</source>
+						<target>1.6</target>
+					</configuration>
+				</plugin>
+			</plugins>
 		</pluginManagement>
 	</build>
 </project>
