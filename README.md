@@ -5,7 +5,7 @@
 
 griddle是一个简单的轻量级通用组件。它包含以下两个项目：
 
-* bloomfilter-ext：提取自Hadoop源码，自己只扩展了一个AdjustedCountingBloomFilter类，修改其Dump方式为使用NIO的ByteBuffer
+* bloomfilter-ext：提取自Hadoop源码，自己扩展了一个AdjustedCountingBloomFilter类，修改其Dump方式为使用ByteBuffer，并且修改它的方法为线程安全方法（利用原子变量CAS）
 * griddle：依赖bloomfilter-ext项目，包含该通用组件的具体实现
 
 ##适合场景和特性
