@@ -1,5 +1,6 @@
 package com.ximalaya.griddle;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +45,9 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	
 	private static Map<String, Griddle> griddleMap = new ConcurrentHashMap<String, Griddle> ();   // Griddle名称到Griddle对象的映射
 	
-	private static boolean hasStarted = false;
+	private static AtomicBoolean hasStarted = new AtomicBoolean(false);
 	private static AtomicBoolean isRunning = new AtomicBoolean(false);
+	private static AtomicBoolean handoffRecyleGriddles = new AtomicBoolean(false);   // 等待回收Griddles
 	
 	private static final Object accessDumpFileMutex = new Object();   // 访问Dump文件的互斥锁
 	
@@ -61,6 +63,13 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	public void setDumpFileDir(
 			@Value("${griddle.config.dumpFileDir}") String dumpFileDir) {
 		GriddleManager.dumpFileDir = dumpFileDir;
+		File dumpFileDirectory = new File(dumpFileDir);
+		if(!dumpFileDirectory.exists() || !dumpFileDirectory.isDirectory()) {
+			boolean createDirResult = dumpFileDirectory.mkdirs();
+			if(!createDirResult) {
+				throw new RuntimeException(String.format("create dump file dir failed: %s", dumpFileDir));
+			}
+		}
 	}
 	
 	@Autowired
@@ -137,7 +146,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 		}
 		
 		isRunning.set(true);
-		hasStarted = true;
+		hasStarted.set(true);
 		
 		LOG.info("GriddleManager has started");
 	}
@@ -151,15 +160,22 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 			
 			// 关闭定时调度任务（不需要，会自动调用）
 			
-			// 最后Dump一次CBF到硬盘文件
-			LOG.info("on stop, dump cbfs to disk files for the last time");
-			try {
-				Thread.sleep(10);
-			}
-			catch(InterruptedException _) {
-				// swallow its
+			// 如果当前还有回收Griddle任务在运行则等待
+			while(handoffRecyleGriddles.get()) {
+				try {
+					Thread.sleep(100);
+				}
+				catch(InterruptedException _) {
+					// swallow it
+				}
 			}
 			
+			// 最后再做一次Griddle回收
+			LOG.info("on stop, recycle griddles for the last time...");
+			recycleGriddles();
+			
+			// 最后Dump一次CBF到硬盘文件
+			LOG.info("on stop, dump cbfs to disk files for the last time...");
 			dumpCBFsToDisk();
 		}
 	}
@@ -274,11 +290,25 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 		ensureGriddleAlreadyExist(griddleName);
 		
 		Griddle griddle = griddleMap.get(griddleName);
-		if(griddle != null) {
-			return griddle.add(keyWord);
+		return griddle.add(keyWord);
+	}
+	
+	/**
+	 * 获取Griddle内某个关键词已经重复插入的次数
+	 * @param griddleName Griddle唯一标识名称（应用内全局唯一）
+	 * @param keyWord 关键词
+	 * @return 如果参数非法则返回-1，其他情况返回已重复插入次数
+	 */
+	public static int getHasInsertedCount(String griddleName, String keyWord) {
+		if(StringUtils.isEmpty(griddleName) || StringUtils.isEmpty(keyWord)) {
+			return -1;
 		}
 		
-		return false;
+		ensureHasStarted();
+		ensureGriddleAlreadyExist(griddleName);
+		
+		Griddle griddle = griddleMap.get(griddleName);
+		return griddle.getRepeatedInsertCount(keyWord);
 	}
 	
 	/**
@@ -312,9 +342,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 		ensureGriddleAlreadyExist(griddleName);
 		
 		Griddle griddle = griddleMap.get(griddleName);
-		if(griddle != null) {
-			griddle.markToRecycle();   // 注意是标记Griddle为可回收，而不是立即回收
-		}
+		griddle.markToRecycle();   // 注意是标记Griddle为可回收，而不是立即回收
 	}
 	
 	
@@ -326,7 +354,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	 * 确保GriddleManager已启动
 	 */
 	private static void ensureHasStarted() {
-		if (!hasStarted) {
+		if (!hasStarted.get()) {
 			throw new IllegalStateException("haven't started GriddleManager yet");
 		}
 	}
@@ -361,6 +389,8 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	 * 回收所有可以回收的Griddle
 	 */
 	private void recycleGriddles() {
+		handoffRecyleGriddles.set(true);
+		
 		for(Entry<String, Griddle> entry: griddleMap.entrySet()) {
 			Griddle curGriddle = entry.getValue();
 			try {
@@ -382,6 +412,8 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 		for(String toRemoveGriddleName: toRemoveGriddleNameList) {
 			griddleMap.remove(toRemoveGriddleName);
 		}
+		
+		handoffRecyleGriddles.set(false);
 	}
 	
 	/**
@@ -459,7 +491,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 
 		@Override
 		public void run() {
-			LOG.info("schedule recycle griddle...");
+			LOG.info("schedule recycle griddles...");
 			recycleGriddles();
 		}
 		

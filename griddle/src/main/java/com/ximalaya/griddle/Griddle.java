@@ -35,6 +35,7 @@ public class Griddle {
 
 	private AtomicBoolean hasRecycled = new AtomicBoolean(false);   // 是否已被回收
 	private static final int RECYCLE_RETRY_TIMES = 3;              // 回收重试次数
+	private static final int RENMAE_RETRY_TIMES = 3;               // 重命名文件重试次数
 	
 	private static final Logger LOG = LoggerFactory.getLogger(Griddle.class);
 	
@@ -109,26 +110,21 @@ public class Griddle {
 	 * @return true（插入Key成功） or false（插入Key失败）
 	 */
 	public boolean add(String keyWord) {
-		if(StringUtils.isEmpty(keyWord)) {
+		/*
+		 * GriddleManager中已校验了keyWord非空，所以这里不重复校验
+		 * if(StringUtils.isEmpty(keyWord)) {
 			return false;
-		}
-		
-		boolean result = insertKey(cbfSection, new Key(keyWord.getBytes()));
-		return result;
+		}*/
+		return insertKey(cbfSection, new Key(keyWord.getBytes()));
 	}
 	
 	/**
-	 * 获取某个Key剩余的可插入次数
+	 * 获取某个keyWord已重复插入的次数
 	 * @param keyWord
 	 * @return
 	 */
-	public int getRemainInsertCount(String keyWord) {
-		if(StringUtils.isEmpty(keyWord)) {
-			return -1;
-		}
-		
-		int result = getHasInsertedCount(cbfSection, new Key(keyWord.getBytes()));
-		return result;
+	public int getRepeatedInsertCount(String keyWord) {
+		return getInsertedCount(cbfSection, new Key(keyWord.getBytes()));
 	}
 	
 	/**
@@ -222,18 +218,11 @@ public class Griddle {
 		return true;
 	}
 	
-	/**
-	 * 获取某个Key已被重复插入次数
-	 * @param section
-	 * @param key
-	 * @return 该Key已被重复插入次数
-	 */
-	private int getHasInsertedCount(CBFSection section, Key key) {
-		int result = 0;
+	private int getInsertedCount(CBFSection section, Key key) {
 		section.increaseUseCount();
-		result = section.getInsertedCount(key);
+		int insertedCount = section.getInsertedCount(key);
 		section.decreaseUseCount();
-		return result;
+		return insertedCount;
 	}
 	
 	
@@ -249,17 +238,16 @@ public class Griddle {
 	public void dumpCBFToDisk() {
 		String dumpFilePath = getFullDumpFilePath(dumpFileDir, dumpFileName);
 		String tmpDumpFilePath = dumpFilePath + ".tmp";
+		int tmpFileIndex = 0;
+		while(FileUtil.isFileExist(tmpDumpFilePath)) {
+			tmpDumpFilePath = dumpFilePath + ".tmp." + tmpFileIndex;
+			tmpFileIndex++;
+		}
 		
 		LOG.debug("dump cbf to file [{}]", dumpFilePath);
 		
 		MemoryMappedFile memoryMappedFile = new MemoryMappedFile(tmpDumpFilePath, this.fileSizeInByte);
-		try {
-			memoryMappedFile.map();
-		}
-		catch(Exception e) {
-			return;
-		}
-		
+		memoryMappedFile.map();
 		AdjustedCountingBloomFilter cbf = this.cbfSection.getCBF();
 		try {
 			cbf.write(memoryMappedFile.getMappedByteBuffer());
@@ -274,8 +262,25 @@ public class Griddle {
 		File oldDumpFile = new File(dumpFilePath);
 		File tmpDumpFile = new File(tmpDumpFilePath);
 		FileUtil.deleteFile(oldDumpFile);
-		boolean renameResult = FileUtil.renameFile(tmpDumpFile, oldDumpFile);
-		if(!renameResult) {   // 重命名失败
+		
+		int retriedTimes = 0;
+		while(retriedTimes < RENMAE_RETRY_TIMES) {
+			boolean renameResult = FileUtil.renameFile(tmpDumpFile, oldDumpFile);
+			if(renameResult) {   // 重命名成功
+				break;
+			}
+			
+			retriedTimes++;
+			
+			try {
+				Thread.sleep(200);
+			}
+			catch(InterruptedException _) {
+				// swallow
+			}
+		}
+		
+		if(retriedTimes == RENMAE_RETRY_TIMES) {   // 重命名失败
 			String errorMsg = "dump CBF to file [" + dumpFilePath + "] failed: rename failed";
 			LOG.error(errorMsg);
 			throw new DumpFileFailedException(errorMsg);
