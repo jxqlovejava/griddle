@@ -75,7 +75,7 @@ griddle.config.hashNum=20
     </tr>
     <tr>
     	<td>hashNum</td>
-    	<td>每个key映射到Counting Bloom Filter数据结构的多少位，一般这个值越大，误判概率越低</td>
+    	<td>每个key映射到Counting Bloom Filter数据结构的多少位，建议值设置为12</td>
     </tr>
 </table>
 
