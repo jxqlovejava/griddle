@@ -47,7 +47,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	
 	private static AtomicBoolean hasStarted = new AtomicBoolean(false);
 	private static AtomicBoolean isRunning = new AtomicBoolean(false);
-	private static AtomicBoolean handoffRecyleGriddles = new AtomicBoolean(false);   // 等待回收Griddles
+	private static AtomicBoolean handoffRecycleGriddles = new AtomicBoolean(false);   // 等待回收Griddles
 	
 	private static final Object accessDumpFileMutex = new Object();   // 访问Dump文件的互斥锁
 	
@@ -161,7 +161,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 			// 关闭定时调度任务（不需要，会自动调用）
 			
 			// 如果当前还有回收Griddle任务在运行则等待
-			while(handoffRecyleGriddles.get()) {
+			while(handoffRecycleGriddles.get()) {
 				try {
 					Thread.sleep(100);
 				}
@@ -389,7 +389,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	 * 回收所有可以回收的Griddle
 	 */
 	private void recycleGriddles() {
-		handoffRecyleGriddles.set(true);
+		handoffRecycleGriddles.set(true);
 		
 		for(Entry<String, Griddle> entry: griddleMap.entrySet()) {
 			Griddle curGriddle = entry.getValue();
@@ -413,7 +413,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 			griddleMap.remove(toRemoveGriddleName);
 		}
 		
-		handoffRecyleGriddles.set(false);
+		handoffRecycleGriddles.set(false);
 	}
 	
 	/**
