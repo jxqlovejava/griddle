@@ -5,7 +5,7 @@
 
 griddle是一个简单的轻量级通用组件。它包含以下两个项目：
 
-* bloomfilter-ext：提取自Hadoop源码，自己扩展了一个AdjustedCountingBloomFilter类，修改其Dump方式为使用ByteBuffer，并且修改它的方法为线程安全方法（利用原子变量CAS）
+* bloomfilter-ext：提取自Hadoop源码，自己扩展了一个ThreadSafeCBloomFilter类，利用AtomicLongArray修改它的方法为线程安全方法
 * griddle：依赖bloomfilter-ext项目，包含该通用组件的具体实现
 
 ##适合场景和特性
@@ -67,7 +67,7 @@ griddle.config.hashNum=20
     </tr>
     <tr>
     	<td>vectorSize</td>
-    	<td>预估的unique key数目</td>
+    	<td>((vectorSize - 1) >>> 4) + 1计算得到bucketSize，bucketSize是预估插入的独立key数，一般可以估大一些以降低误判率</td>
     </tr>
     <tr>
     	<td>hashType</td>
@@ -153,4 +153,4 @@ else {
 GriddleManager.markToRecycleGriddle(uniqueGriddleName);
 ```
 
-完！欢迎大家提意见或者发表看法，我的Email是：jxqlovezlj@gmail.com
+完！欢迎大家提意见或者发表看法，我的Email是：jxqlovejava@163.com
