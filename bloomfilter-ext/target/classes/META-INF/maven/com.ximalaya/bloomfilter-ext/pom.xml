@@ -4,11 +4,22 @@
 
 	<groupId>com.ximalaya</groupId>
 	<artifactId>bloomfilter-ext</artifactId>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.2.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>bloomfilter-ext</name>
 	<url>http://maven.apache.org</url>
+
+	<developers>
+		<developer>
+			<id>will</id>
+			<name>will jiang</name>
+			<email>jxqlovejava@163.com</email>
+			<organization>ximalaya</organization>
+			<organizationUrl>http://ximalaya.com</organizationUrl>
+			<timezone>+8</timezone>
+		</developer>
+	</developers>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,7 +29,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
+			<version>4.8.1</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- slf4j -->
@@ -223,4 +234,19 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<distributionManagement>
+		<!-- use the following if you're not using a snapshot version. -->
+	<!-- 	<repository>
+			<id>artifactory</id>
+			<name>ximalaya-releases</name>
+			<url>http://192.168.3.161:8082/artifactory/ximalaya-releases/</url>
+		</repository> -->
+		<!-- use the following if you're using a snapshot version. -->
+		<snapshotRepository>
+			<id>artifactory</id>
+			<name>ximalaya-snapshots</name>
+			<url>http://192.168.3.161:8082/artifactory/ximalaya-snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>

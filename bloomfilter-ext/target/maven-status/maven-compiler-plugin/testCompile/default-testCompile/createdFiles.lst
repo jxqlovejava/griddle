@@ -1,0 +1,6 @@
+com\ximalaya\bloomfilterext\bloom\TestDataOutput.class
+com\ximalaya\bloomfilterext\bloom\TestAdjustedCountingBloomFilter.class
+com\ximalaya\bloomfilterext\bloom\TestFalsePositive.class
+com\ximalaya\bloomfilterext\bloom\TestAdjustedCountingBloomFilter$1.class
+com\ximalaya\bloomfilterext\bloom\BucketsUtil.class
+com\ximalaya\bloomfilterext\bloom\TestThreadSafeCBloomFilter.class

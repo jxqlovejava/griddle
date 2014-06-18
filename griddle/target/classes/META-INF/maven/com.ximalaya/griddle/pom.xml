@@ -2,9 +2,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.ximalaya</groupId>
+	<parent>
+		<groupId>com.ximalaya</groupId>
+		<artifactId>ting</artifactId>
+		<version>1.2.3-SNAPSHOT</version>
+		<relativePath>../ting</relativePath>
+	</parent>
+
 	<artifactId>griddle</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.3.8-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>griddle</name>
@@ -12,80 +18,42 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.version>3.1.1.RELEASE</spring.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
+			<version>4.8.1</version>
 			<scope>test</scope>
-		</dependency>
-		<!-- Spring framework -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<!-- bloomfilter-ext -->
 		<dependency>
 			<groupId>com.ximalaya</groupId>
 			<artifactId>bloomfilter-ext</artifactId>
-			<version>0.1.5-SNAPSHOT</version>
+			<version>0.2.0-SNAPSHOT</version>
 		</dependency>
 		<!-- CGLib -->
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
-			<version>3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm-all</artifactId>
-			<version>4.0</version>
-		</dependency>
-		<!-- Apache Commons -->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.3.2</version>
+			<version>2.2.2</version>
 		</dependency>
 	</dependencies>
-
+	
 	<build>
 		<pluginManagement>
-			<plugins>
-				<plugin>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>2.3.2</version>
-					<configuration>
-						<encoding>utf-8</encoding>
-						<source>1.6</source>
-						<target>1.6</target>
-					</configuration>
-				</plugin>
-			</plugins>
+				<plugins>
+					<plugin>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>2.3.2</version>
+						<configuration>
+							<encoding>utf-8</encoding>
+							<source>1.6</source>
+							<target>1.6</target>
+						</configuration>
+					</plugin>
+				</plugins>
 		</pluginManagement>
 	</build>
 </project>
