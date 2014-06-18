@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -22,7 +23,6 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 import org.springframework.scheduling.concurrent.ScheduledExecutorTask;
 
-import com.nali.common.util.StringUtil;
 import com.ximalaya.griddle.util.FileUtil;
 
 /**
@@ -244,7 +244,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	 * @param maxRepeatInsertCount 最大可重复插入次数
 	 */
 	public static void addGriddle(String griddleName, int maxRepeatInsertCount) {
-		if(StringUtil.isEmpty(griddleName) || maxRepeatInsertCount <= 0) {
+		if(StringUtils.isEmpty(griddleName) || maxRepeatInsertCount <= 0) {
 			throw new IllegalArgumentException("griddleName should not empty, maxRepeatInsertCount should > 0");
 		}
 		
@@ -265,7 +265,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	 * @param newMaxRepeatInsertCount
 	 */
 	public static void updateMaxRepeatInsertCount(String griddleName, int newMaxRepeatInsertCount) {
-		if(StringUtil.isEmpty(griddleName) || newMaxRepeatInsertCount <= 0) {
+		if(StringUtils.isEmpty(griddleName) || newMaxRepeatInsertCount <= 0) {
 			throw new IllegalArgumentException("griddleName should not empty, newMaxRepeatInsertCount should > 0");
 		}
 		
@@ -282,7 +282,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	 * @return
 	 */
 	public static boolean increaseInsertCountByOne(String griddleName, String keyWord) {
-		if(StringUtil.isEmpty(griddleName) || StringUtil.isEmpty(keyWord)) {
+		if(StringUtils.isEmpty(griddleName) || StringUtils.isEmpty(keyWord)) {
 			throw new IllegalArgumentException("gridleName & keyWord should not empty");
 		}
 		
@@ -300,7 +300,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	 * @return 如果参数非法则返回-1，其他情况返回已重复插入次数
 	 */
 	public static int getHasInsertedCount(String griddleName, String keyWord) {
-		if(StringUtil.isEmpty(griddleName) || StringUtil.isEmpty(keyWord)) {
+		if(StringUtils.isEmpty(griddleName) || StringUtils.isEmpty(keyWord)) {
 			return -1;
 		}
 		
@@ -332,7 +332,7 @@ public class GriddleManager implements SmartLifecycle, ApplicationContextAware {
 	 * @param griddleName Griddle唯一标识名称（应用内全局唯一）
 	 */
 	public static void markToRecycleGriddle(String griddleName) {
-		if(StringUtil.isEmpty(griddleName)) {
+		if(StringUtils.isEmpty(griddleName)) {
 			throw new IllegalArgumentException("griddleName should not empty");
 		}
 		

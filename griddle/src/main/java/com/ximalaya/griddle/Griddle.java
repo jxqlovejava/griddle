@@ -10,10 +10,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nali.lang.StringUtils;
 import com.ximalaya.bloomfilterext.bloom.Key;
 import com.ximalaya.bloomfilterext.bloom.ThreadSafeCBloomFilter;
 import com.ximalaya.griddle.exception.DumpFileFailedException;
